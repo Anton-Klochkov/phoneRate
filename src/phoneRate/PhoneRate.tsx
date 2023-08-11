@@ -1,3 +1,5 @@
+import { FormEvent, useState } from 'react';
+
 import {
   Typography,
   Card,
@@ -9,12 +11,13 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
-  styled,
   Box,
   Button,
+  TextField,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import styles from './phoneRate.module.scss';
-import { useState, ChangeEvent } from 'react';
 import InputMask from 'react-input-mask';
 import {
   SetBlackThumb,
@@ -35,188 +38,233 @@ import { ReactComponent as OkOff } from './assets/okDis.svg';
 import { ReactComponent as TikTokOff } from './assets/tiktokDis.svg';
 import { ReactComponent as VkOff } from './assets/vkDis.svg';
 
+import { secondary } from '../theme';
+
 export const PhoneRate = () => {
-  const [phone, setPhone] = useState<undefined | string>(undefined);
+  const [formSubmit, setFormSubmit] = useState('');
+  const [isOpenSnackbar, setIsOpenSnackbar] = useState(false);
 
-  const SliderBlue = styled(Slider)({
-    color: '#7A5CFA',
-    height: 10,
-    '& .MuiSlider-track': {
-      border: 'none',
-      height: 10,
-    },
-    '& .MuiSlider-thumb': {
-      height: 60,
-      width: 60,
-    },
-    '& .MuiSlider-markLabel': {
-      paddingTop: '24px',
-    },
-  });
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.target as HTMLFormElement);
+    setFormSubmit(JSON.stringify(Object.fromEntries(data.entries())));
+    toggleBar();
+  };
 
-  const SliderBlack = styled(Slider)({
-    color: '#000000',
-    height: 10,
-    '& .MuiSlider-track': {
-      border: 'none',
-      height: 10,
-    },
-    '& .MuiSlider-thumb': {
-      height: 60,
-      width: 60,
-      backgroundImage: `url("./assets/thumbBlack.svg")`,
-    },
-    '& .MuiSlider-markLabel': {
-      paddingTop: '24px',
-    },
-  });
-
-  const handleInputPhone = (e: ChangeEvent<HTMLInputElement | undefined>) => {
-    setPhone(e.target.value);
+  const toggleBar = () => {
+    setIsOpenSnackbar((prev) => !prev);
   };
 
   return (
-    <Card className={styles.cardPhoneRate}>
-      <CardContent
-        sx={{
-          p: 0,
-          '&:last-child': { p: '120px' },
-        }}
+    <>
+      <Card
+        className={styles.cardPhoneRate}
+        sx={{ backgroundColor: '#eef2f4', boxShadow: 'none', overflow: 'auto' }}
       >
-        <Typography variant="h2">Настройте тариф</Typography>
-
-        <Box sx={{ width: '368px' }}>
-          <Typography variant="h4" fontWeight={500}>
-            Телефон
-          </Typography>
-
-          <InputMask
-            value={phone}
-            onChange={handleInputPhone}
-            mask="+7 (999) 999 99 99"
-            maskChar=" "
-          />
-
-          <FormControl fullWidth>
-            <Typography variant="h4" fontWeight={500}>
-              Оператор
-            </Typography>
-            <Select defaultValue={'Оператор №1'}>
-              <MenuItem value={'Оператор №1'}>Оператор №1</MenuItem>
-              <MenuItem value={'Оператор №2'}>Оператор №2</MenuItem>
-              <MenuItem value={'Оператор №3'}>Оператор №3</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-
-        <Box
+        <CardContent
           sx={{
-            height: '450px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            flexDirection: 'column',
+            p: 0,
+            '&:last-child': { p: '120px' },
           }}
         >
-          <Typography variant="h4" fontWeight={500}>
-            Минуты
-          </Typography>
-          <SliderBlue
-            slots={{ thumb: SetBlueThumb }}
-            min={1}
-            max={4}
-            step={1}
-            marks={marksMinutes}
-          />
+          <Typography variant="h2">Настройте тариф</Typography>
+          <form onSubmit={handleSubmit}>
+            <Box>
+              <Typography variant="h4" fontWeight={500}>
+                Телефон
+              </Typography>
 
-          <Typography variant="h4" fontWeight={500}>
-            СМС
-          </Typography>
-          <SliderBlue
-            slots={{ thumb: SetBlueThumb }}
-            min={0}
-            max={150}
-            marks={marksSms}
-          />
+              <InputMask name="phoneNumber" mask="+7 (999) 999-99-99">
+                <TextField
+                  required
+                  fullWidth
+                  placeholder="+7 (___) ___-__-__"
+                />
+              </InputMask>
 
-          <Typography variant="h4" fontWeight={500}>
-            Интернет
-          </Typography>
-          <SliderBlack
-            slots={{ thumb: SetBlackThumb }}
-            min={1}
-            max={4}
-            step={1}
-            // onChange={(_, newValue) => {
-            //   if (newValue !== internet) {
-            //     setInternet(newValue);
-            //   }
-            // }}
-            marks={marksInternet}
-          />
-        </Box>
+              <FormControl fullWidth>
+                <Typography variant="h4" fontWeight={500}>
+                  Оператор
+                </Typography>
+                <Select name="operator" defaultValue={'Оператор №1'}>
+                  <MenuItem value={'Оператор №1'}>Оператор №1</MenuItem>
+                  <MenuItem value={'Оператор №2'}>Оператор №2</MenuItem>
+                  <MenuItem value={'Оператор №3'}>Оператор №3</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
 
-        <Box
-          sx={{
-            height: '141px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            flexDirection: 'column',
-            margin: '36px 0',
-          }}
-        >
-          <Typography variant="h4" fontWeight={500}>
-            Wi-Fi роутер
-          </Typography>
-          <FormGroup>
-            <FormControlLabel control={<Checkbox />} label="Аренда 99 ₽/мес." />
-            <FormControlLabel control={<Checkbox />} label="Выкупить 2 600 ₽" />
-          </FormGroup>
-        </Box>
-        <Box>
-          <Typography>Соцсети</Typography>
-          <FormGroup row>
-            <FormControlLabel
-              labelPlacement="bottom"
-              control={<Checkbox icon={<FbOff />} checkedIcon={<Fb />} />}
-              label="20 ₽"
-            />
-            <FormControlLabel
-              labelPlacement="bottom"
-              control={<Checkbox icon={<VkOff />} checkedIcon={<Vk />} />}
-              label="20 ₽"
-            />
-            <FormControlLabel
-              labelPlacement="bottom"
-              control={<Checkbox icon={<OkOff />} checkedIcon={<Ok />} />}
-              label="20 ₽"
-            />
-            <FormControlLabel
-              labelPlacement="bottom"
-              control={
-                <Checkbox icon={<InstagramOff />} checkedIcon={<Instagram />} />
-              }
-              label="60 ₽"
-            />
-            <FormControlLabel
-              labelPlacement="bottom"
-              control={
-                <Checkbox icon={<TikTokOff />} checkedIcon={<TikTok />} />
-              }
-              label="60 ₽"
-            />
-          </FormGroup>
-        </Box>
-        <Box>
-          <Button
-            sx={{ backgroundColor: '#7A5CFA', height: 90, width: 250 }}
-            variant="contained"
-          >
-            420 ₽ в месяц
-          </Button>
-        </Box>
-      </CardContent>
-    </Card>
+            <Box className={styles.wrapSliders}>
+              <Box className={styles.sliderContainer}>
+                <Typography variant="h4" fontWeight={500}>
+                  Минуты
+                </Typography>
+                <Slider
+                  defaultValue={2}
+                  name="minutes"
+                  slots={{ thumb: SetBlueThumb }}
+                  min={1}
+                  max={4}
+                  step={1}
+                  marks={marksMinutes}
+                />
+              </Box>
+              <Box className={styles.sliderContainer}>
+                <Typography variant="h4" fontWeight={500}>
+                  СМС
+                </Typography>
+                <Slider
+                  defaultValue={1}
+                  name="sms"
+                  slots={{ thumb: SetBlueThumb }}
+                  min={1}
+                  max={4}
+                  step={1}
+                  marks={marksSms}
+                />
+              </Box>
+              <Box className={styles.sliderContainer}>
+                <Typography variant="h4" fontWeight={500}>
+                  Интернет
+                </Typography>
+                <Slider
+                  defaultValue={3}
+                  name="internet"
+                  sx={{ color: secondary.main }}
+                  slots={{ thumb: SetBlackThumb }}
+                  min={1}
+                  max={4}
+                  step={1}
+                  marks={marksInternet}
+                />
+              </Box>
+            </Box>
+
+            <Box
+              sx={{
+                height: '141px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+                flexDirection: 'column',
+                margin: '36px 0',
+              }}
+            >
+              <Typography variant="h4" fontWeight={500}>
+                Wi-Fi роутер
+              </Typography>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox name="routerTenancy" defaultChecked={false} />
+                  }
+                  label={
+                    <Typography variant="h5">"Аренда 99 ₽/мес."</Typography>
+                  }
+                />
+                <FormControlLabel
+                  control={<Checkbox name="routerBuy" defaultChecked={false} />}
+                  label={
+                    <Typography variant="h5">"Выкупить 2 600 ₽"</Typography>
+                  }
+                />
+              </FormGroup>
+            </Box>
+            <Box>
+              <Typography variant="h4" fontWeight={500}>
+                Соцсети
+              </Typography>
+              <FormGroup row>
+                <FormControlLabel
+                  labelPlacement="bottom"
+                  control={
+                    <Checkbox
+                      name="facebook"
+                      defaultChecked={false}
+                      icon={<FbOff />}
+                      checkedIcon={<Fb />}
+                    />
+                  }
+                  label="20 ₽"
+                />
+                <FormControlLabel
+                  labelPlacement="bottom"
+                  control={
+                    <Checkbox
+                      name="vk"
+                      defaultChecked={true}
+                      icon={<VkOff />}
+                      checkedIcon={<Vk />}
+                    />
+                  }
+                  label="20 ₽"
+                />
+                <FormControlLabel
+                  labelPlacement="bottom"
+                  control={
+                    <Checkbox
+                      name="ok"
+                      defaultChecked={false}
+                      icon={<OkOff />}
+                      checkedIcon={<Ok />}
+                    />
+                  }
+                  label="20 ₽"
+                />
+                <FormControlLabel
+                  labelPlacement="bottom"
+                  control={
+                    <Checkbox
+                      name="instagram"
+                      defaultChecked={false}
+                      icon={<InstagramOff />}
+                      checkedIcon={<Instagram />}
+                    />
+                  }
+                  label="60 ₽"
+                />
+                <FormControlLabel
+                  labelPlacement="bottom"
+                  defaultChecked={false}
+                  control={
+                    <Checkbox
+                      name="tiktok"
+                      defaultChecked={false}
+                      icon={<TikTokOff />}
+                      checkedIcon={<TikTok />}
+                    />
+                  }
+                  label="60 ₽"
+                />
+              </FormGroup>
+            </Box>
+            <Button
+              type="submit"
+              sx={{
+                backgroundColor: '#7A5CFA',
+                height: 90,
+                width: 250,
+                marginTop: '24px',
+              }}
+              variant="contained"
+            >
+              <Typography fontWeight={400} fontSize={24}>
+                отправить форму
+              </Typography>
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={isOpenSnackbar}
+        autoHideDuration={2000}
+        onClose={toggleBar}
+      >
+        <Alert onClose={toggleBar} severity="success" sx={{ width: '100%' }}>
+          <Typography variant="h3">{formSubmit}</Typography>
+        </Alert>
+      </Snackbar>
+    </>
   );
 };

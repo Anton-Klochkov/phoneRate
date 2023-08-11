@@ -45,6 +45,21 @@ export const selectPointValueInternet = (value: number) => {
   }
 };
 
+export const selectPointValueSms = (value: number) => {
+  switch (value) {
+    case 1:
+      return 0;
+    case 2:
+      return 50;
+    case 3:
+      return 100;
+    case 4:
+      return 150;
+    default:
+      return 0;
+  }
+};
+
 const sliderPoints = [1, 2, 3, 4];
 
 export const marksMinutes = sliderPoints.map((value) => ({
@@ -52,29 +67,38 @@ export const marksMinutes = sliderPoints.map((value) => ({
   label: selectPointValueMinutes(value),
 }));
 
+export const marksSms = sliderPoints.map((value) => ({
+  value,
+  label: selectPointValueSms(value),
+}));
+
 export const marksInternet = sliderPoints.map((value) => ({
   value,
   label: selectPointValueInternet(value),
 }));
 
-export const marksSms = [
-  {
-    value: 0,
-    label: '0',
-  },
-  {
-    value: 50,
-    label: '50',
-  },
-  {
-    value: 100,
-    label: '100',
-  },
-  {
-    value: 150,
-    label: '150',
-  },
-];
+// export const checkPrice = (operator: string,) => {
+
+// }
+
+// export const marksSms = [
+//   {
+//     value: 0,
+//     label: '0',
+//   },
+//   {
+//     value: 50,
+//     label: '50',
+//   },
+//   {
+//     value: 100,
+//     label: '100',
+//   },
+//   {
+//     value: 150,
+//     label: '150',
+//   },
+// ];
 
 export const SetBlueThumb = (props: HTMLAttributes<unknown>) => {
   const { children, ...other } = props;
@@ -95,3 +119,22 @@ export const SetBlackThumb = (props: HTMLAttributes<unknown>) => {
     </SliderThumb>
   );
 };
+
+// export const foo = (data: { [k: string]: FormDataEntryValue }) => {
+//   let newData = {}
+//   switch (data?.operator) {
+//     case "Оператор №1":
+//       newData = {
+
+//       }
+//     case "Оператор №2":
+
+//       break;
+//     case "Оператор №3":
+
+//       break;
+
+//     default:
+//       break;
+//   }
+// };
